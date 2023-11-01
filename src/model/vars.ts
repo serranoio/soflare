@@ -1,0 +1,1 @@
+export const TABS = ["Home", "About", "Contact"]
