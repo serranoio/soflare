@@ -1,0 +1,26 @@
+:root {
+  --red: #E84A5f;
+  --orange: #FF847C;
+  --yellow: #FECEA8;
+  --green: #99B898;
+  --gray: #2a363B;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+
+h1,h2,h3 {
+ color: var(--red);
+}
+
+body {
+  background-color: var(--gray);
+}
