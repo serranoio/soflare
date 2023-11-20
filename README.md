@@ -16,4 +16,5 @@ Ask me to demo it!!
   c. Include social handles
   d. Site Metadata/ Admin Control Panel
     i. change colors
-2. Deploy Soflare API for public use!
+2. Guide for admin account
+3. Deploy Soflare API for public use!

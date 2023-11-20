@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -27,7 +26,7 @@ func createApp(name string) error {
 
 	payload, _ := json.Marshal(appBody)
 
-	body := sendPostRequest(url, token, payload)
+	body := sendPostRequest(url, token, payload, "POST")
 	defer body.Close()
 
 	return nil
@@ -38,8 +37,6 @@ func writeToml(name string) string {
 	backendTomlPath := path.Join(wd, "../", "backend", "fly.toml")
 
 	newConfiguration := fmt.Sprintf(`
-	# fly.toml app configuration file generated for accential on 2023-10-16T12:08:12-05:00
-	#
 	# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 	#
 	
@@ -47,7 +44,8 @@ func writeToml(name string) string {
 	primary_region = "ord"
 	
 	[build]
-	
+
+
 	[http_service]
 	internal_port = 8080
 	force_https = true
@@ -67,7 +65,7 @@ func writeToml(name string) string {
 
 }
 
-func deployMachine(name string) {
+func deployMachine(name string) error {
 	backendTomlPath := writeToml(name)
 
 	cmd := exec.Command("fly", "deploy")
@@ -75,13 +73,19 @@ func deployMachine(name string) {
 	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
-func deployFly(name string) {
+func DeployFly(name string) error {
 
-	createApp(name)
-	deployMachine(name)
+	err := createApp(name)
+	if err != nil {
+		return err
+	}
+	err = deployMachine(name)
 
+	return err
 }

@@ -1,25 +1,83 @@
 <script lang="ts">
-  import { CreateWebsiteLol } from "../util/model";
+  import { onMount } from "svelte";
+  import { CreateWebsiteLol, url } from "../util/model";
   import { TABS } from "../util/util"; 
 
   let website = "";
   
-  const submit = async (e: any) => {
-    e.preventDefault();
-
-    const name = (document.querySelector("#website-name")! as HTMLInputElement).value 
 
 
-    try {
-        website = await CreateWebsiteLol(name);
+  
+  const increment = 1000;
+  const secondsInAMinute = 60;
+  const minutes = .1;
+  const beginningTime = minutes * secondsInAMinute * increment
+  let time = beginningTime;  // 5 minutes
 
-    } catch(e) {
+  let timerOn = false;
+  let completed = false;
+  
+  let interval: any;
 
-    } finally {
+  const countdown = () => {
+    time -= increment;
+    console.log(time)
+    localStorage.setItem("time", String(time));
 
+    timerOn = true;
+
+    if (time <= 0) {
+        completed = true;
+        timerOn = false;
+        time = beginningTime
+        clearInterval(interval)
     }
+  }
+
+  let deployments: any;
+
+  const fetchAll = async () => {
+      
+      const response = await fetch(url + "/fetch/all")
+      
+      const deploymentsObject = await response.json()
+      
+      deployments = deploymentsObject.deployments;
+    
+    
+      const newTime = localStorage.getItem("time")
+      const newTimeNumber = Number(newTime)
+    
+      if (newTime !== null && newTimeNumber !== beginningTime && Number(newTime) > 0) {
+        time = Number(newTimeNumber)
+        interval = setInterval(countdown, increment)
+      }
 
   }
+  onMount(fetchAll)
+
+    let name: string;
+    
+    const submit = async (e: any) => {
+        e.preventDefault();
+        
+        name = (document.querySelector("#website-name")! as HTMLInputElement).value 
+        
+        
+        try {
+            interval = setInterval(countdown, increment);
+            website = await CreateWebsiteLol(name);     
+        } catch(e) {
+            console.log(e)
+        }
+
+  }
+
+
+//   const updateAll = async () => {
+//         const response = await fetch(url + "/update/all") 
+
+//   }
 
   </script>
 
@@ -41,8 +99,16 @@
             <label for="name">Website Name</label>
             <input id="website-name" name="name" placeholder="website name"/>
         </div>
+        {#if completed && time == beginningTime}
+        <p style="text-align: center; margin-bottom: 2.4rem;">COMPLETED! <a href={`https://${name}.netlify.app`}>Available here!</a></p>
+        {:else}
+        {#if time != beginningTime}
+        <p style="text-align: center; margin-bottom: 2.4rem;">{time / increment} seconds</p>
+        {/if}
+            <!-- {@const secondsLeft = } -->
+        {/if}
         <div>
-            <button on:click={submit} type="submit">LETS PARTY BITCH</button>
+            <button on:click={submit} type="submit">LETS PARTY BEACH 🏖️</button>
         </div>
         <div>
             {#if website !== ""}
@@ -53,6 +119,33 @@
         <!-- } -->
         </div>
     </form>
+
+    <aside>
+        <h3>
+            <!-- <button class="clock" on:click={updateAll}><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm88-24a8,8,0,0,0-8,8V82c-6.35-7.36-12.83-14.45-20.12-21.83a96,96,0,1,0-2,137.7,8,8,0,0,0-11-11.64A80,80,0,1,1,184.54,71.4C192.68,79.64,199.81,87.58,207,96H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,224,56Z"></path></svg></button> -->
+            Deployed Sites 
+            <button class="refresh" on:click={fetchAll}><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"></path></svg></button></h3>
+        {#if deployments}
+        <div>
+
+            {#each deployments as deployment}
+            <ul><li><a target="_blank" href={`https://${deployment.sitename}.netlify.app`}>{deployment.sitename}</a></li></ul>
+            {/each}   
+        </div>
+        {/if}
+    </aside>
+
+    <h2>Instructions</h2>
+    <ol>
+        <p>Here</p>
+        <li>Launch your website with your name of choice by entering it into the input box and then press "Let's Party Beach"</li>
+        <li>Wait 5 minutes (it takes time to push a docker image into a registry)</li>
+        <p>On your deployed site</p>
+        <li>Once 5 minutes is up, your site should be available at https://NAME.netlify.app</li>
+        <li>Navigate there and navigate to the footer to find "login admin"</li>
+        <li>Create an account with whatever email and password</li>
+        <li>Now you can change your site and add blog posts!</li>
+    </ol>
 </main>
 
 
@@ -61,9 +154,61 @@
 main {
     margin: 0 auto;
     max-width: 130rem;
-    height: calc(100vh - 80px);
+    /* height: calc(100vh - 80px); */
 }
 
+aside {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2.4rem;
+    /* position: absolute; */
+    color: var(--gray92);
+    font-size: 4.2rem;
+    /* right: 5%; */
+    /* top: 10%; */
+    margin-bottom: 5.2rem;
+    max-height: 30rem;
+    /* overflow-y: scroll; */
+}
+aside div {
+    /* max-height: 20rem; */
+    overflow-y: scroll;
+    padding: 0 4.2rem;
+
+}
+
+
+h2, li {
+    text-align: center;
+}
+h2 {
+    color: var(--gray92);
+    font-size: 4.2rem;
+    margin-bottom: 2rem;
+}
+p {
+
+    color: var(--gray60);
+    font-size: 2.4rem;
+    line-height: 1.5;
+    text-align: start;
+}
+
+li {
+    color: var(--gray80);
+    font-size: 2.4rem;
+    line-height: 1.5;
+    text-align: start;
+}
+
+.refresh {
+    background-color: rgba(0,0,0,.5) !important;
+    filter: grayscale(.8);
+    font-size: 1rem;
+    /* font-size: 2rem; */
+}
 button {
     font-size: 4rem;
     border-radius: 10px;
@@ -88,6 +233,7 @@ button {
   /* background-clip: text; */
   /* -webkit-background-clip: text; */
   animation: move-bg 8s infinite linear;
+  margin-bottom: 2.4rem;
 }
 
 button:hover {
@@ -147,12 +293,12 @@ h3 {
     justify-content: space-between;
     gap: 2.4rem;
     list-style: none;
-    color: var(--green);
+    color: var(--gray22);
 }
 
 a {
     text-decoration: none;
-    color: var(--green);
+    color: var(--gray92);
     /* font-size: 2rem; */
 }
 

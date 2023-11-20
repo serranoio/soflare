@@ -1,9 +1,14 @@
-const front = "http://"
-const loc = "127.0.0.1"
-// const loc = "soflare.fly.dev"
-const port = ":6900"
+// const front = "http://"
+// const loc = "127.0.0.1"
+// // const loc = "soflare.fly.dev"
+// const port = ":8080"
 
-const url = front + "/" + loc + "" + port
+const front = "https://"
+const loc = "soflare.fly.dev"
+// const loc = "soflare.fly.dev"
+const port = ""
+
+export const url = front + loc + "" + port
 
 export const CreateWebsiteLol = async (name: string) => {
     

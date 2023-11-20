@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"os/exec"
 	"path"
 	"time"
 
@@ -45,7 +45,18 @@ func makeChange(repoStorage string, name string) {
 	os.WriteFile(pathToApi, []byte(flyApi), 0777)
 }
 
-func FetchFrontend(nameOfTheme string, nameOfWebsite string) {
+func deleteFolder(nameOfTheme string) {
+	cmd := exec.Command("rm", "-rf", nameOfTheme)
+	// dir, _ := os.Getwd()
+	// cmd.Dir = path.Join(dir, "tmp", nameOfTheme)
+
+	if err := cmd.Run(); err != nil {
+
+	}
+}
+
+func FetchFrontend(nameOfTheme string, nameOfWebsite string) error {
+	deleteFolder(nameOfTheme)
 
 	publicKey := getPublicKey()
 
@@ -60,18 +71,35 @@ func FetchFrontend(nameOfTheme string, nameOfWebsite string) {
 
 	if err != nil {
 		repo, err = git.PlainOpen(repoStorage)
+
+		// repo.Fetch(&git.FetchOptions{})
+
+		// repo.Pull(&git.FetchOptions{})
 	}
 
 	w, err := repo.Worktree()
 	if err != nil {
-		log.Fatal(err)
+		return err
+	}
+
+	err = w.Pull(&git.PullOptions{
+		Auth:       publicKey,
+		RemoteName: "origin",
+	})
+
+	if err.Error() == "already up-to-date" {
+		err = nil
+	}
+
+	if err != nil {
+		return err
 	}
 
 	makeChange(repoStorage, nameOfWebsite)
 
 	_, err = w.Add(".")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	_, err = w.Commit(fmt.Sprintf("Website %s added", nameOfWebsite), &git.CommitOptions{
@@ -82,14 +110,15 @@ func FetchFrontend(nameOfTheme string, nameOfWebsite string) {
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	err = repo.Push(&git.PushOptions{
 		Auth: publicKey,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
+	return nil
 }

@@ -1,1 +1,1 @@
-export const TABS = ["About", "Make Website"]
+// export const TABS = ["About", "Make Website"]

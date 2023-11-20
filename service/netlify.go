@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 )
 
@@ -29,6 +30,7 @@ type DeployKeyPayload struct {
 }
 
 const netlifyToken = "nfp_LH1n3sxRV49m2y18URdzsiMUxnSUBE1N41da"
+const githubToken = "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"
 
 func createDeployKey(themeName string) *DeployKeyPayload {
 	url := "https://api.netlify.com/api/v1/deploy_keys"
@@ -37,7 +39,7 @@ func createDeployKey(themeName string) *DeployKeyPayload {
 
 	deployKeyPayload := &DeployKeyPayload{}
 
-	body := sendPostRequest(url, authorization, payload)
+	body := sendPostRequest(url, authorization, payload, "POST")
 	defer body.Close()
 
 	err := json.NewDecoder(body).Decode(&deployKeyPayload)
@@ -65,9 +67,9 @@ func insertKeyIntoRepo(deployKeyPayload *DeployKeyPayload) {
 
 	payload, _ := json.Marshal(insertKeyBody)
 
-	authorization := "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"
+	authorization := githubToken
 
-	body := sendPostRequest(url, authorization, payload)
+	body := sendPostRequest(url, authorization, payload, "POST")
 	defer body.Close()
 }
 
@@ -93,9 +95,8 @@ func createSitePayload(themeName string, siteName string) {
 
 	bytes, _ := json.Marshal(siteBody)
 
-	body := sendPostRequest(url, authorization, bytes)
+	body := sendPostRequest(url, authorization, bytes, "POST")
 	defer body.Close()
-
 }
 
 func DeployToNetlify(themeName string, siteName string) error {
@@ -103,4 +104,24 @@ func DeployToNetlify(themeName string, siteName string) error {
 	createSitePayload(themeName, siteName)
 
 	return nil
+}
+
+func updateFrontend(siteName string, themeName string) {
+
+	url := fmt.Sprintf("https://api.netlify.com/api/v1/sites")
+	payload := []byte("")
+	authorization := netlifyToken
+
+	body := sendPostRequest(url, authorization, payload, "GET")
+	bytes, _ := io.ReadAll(body)
+	fmt.Println(bytes)
+	defer body.Close()
+
+	url = fmt.Sprintf("https://api.netlify.com/api/v1/sites/%s/deploys", siteName)
+	payload = []byte("")
+	authorization = netlifyToken
+
+	body = sendPostRequest(url, authorization, payload, "POST")
+	defer body.Close()
+
 }

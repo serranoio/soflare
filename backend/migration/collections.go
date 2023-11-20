@@ -13,8 +13,8 @@ func CreateCollections() []*models.Collection {
 
 		Name:       "hero",
 		Type:       models.CollectionTypeBase,
-		ListRule:   types.Pointer("@request.auth.id = '' || @request.auth.id != ''"),
-		ViewRule:   types.Pointer("@request.auth.id = '' || @request.auth.id != ''"),
+		ListRule:   types.Pointer(""),
+		ViewRule:   types.Pointer(""),
 		CreateRule: types.Pointer(""),
 		UpdateRule: types.Pointer("@request.auth.id != ''"),
 		DeleteRule: nil,
@@ -43,6 +43,10 @@ func CreateCollections() []*models.Collection {
 				Name:     "pic",
 				Type:     schema.FieldTypeFile,
 				Required: false,
+				Options: &schema.FileOptions{
+					MaxSelect: 1,
+					MaxSize:   5242880,
+				},
 			},
 		),
 	}
@@ -51,69 +55,46 @@ func CreateCollections() []*models.Collection {
 
 		Name:       "contact",
 		Type:       models.CollectionTypeBase,
-		ListRule:   nil,
-		ViewRule:   types.Pointer("@request.auth.id != ''"),
+		ListRule:   types.Pointer(""),
+		ViewRule:   types.Pointer(""),
 		CreateRule: types.Pointer(""),
 		UpdateRule: types.Pointer("@request.auth.id != ''"),
 		DeleteRule: nil,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{
-				Name:     "user",
-				Type:     schema.FieldTypeRelation,
-				Required: true,
-				Options: &schema.RelationOptions{
-					MaxSelect:     types.Pointer(1),
-					CollectionId:  "ae40239d2bc4477",
-					CascadeDelete: true,
-				},
-			},
-			&schema.SchemaField{
 				Name:     "name",
 				Type:     schema.FieldTypeText,
 				Required: true,
-				Options: &schema.TextOptions{
-					Max: types.Pointer(10),
-				},
+			},
+			&schema.SchemaField{
+				Name:     "email",
+				Type:     schema.FieldTypeText,
+				Required: false,
 			},
 			&schema.SchemaField{
 				Name:     "facebook",
 				Type:     schema.FieldTypeText,
-				Required: true,
-				Options: &schema.RelationOptions{
-					MaxSelect:     types.Pointer(1),
-					CollectionId:  "ae40239d2bc4477",
-					CascadeDelete: true,
-				},
+				Required: false,
 			},
 			&schema.SchemaField{
 				Name:     "twitter",
 				Type:     schema.FieldTypeText,
-				Required: true,
-				Options: &schema.RelationOptions{
-					MaxSelect:     types.Pointer(1),
-					CollectionId:  "ae40239d2bc4477",
-					CascadeDelete: true,
-				},
+				Required: false,
 			},
 			&schema.SchemaField{
 				Name:     "instagram",
 				Type:     schema.FieldTypeText,
-				Required: true,
-				Options: &schema.RelationOptions{
-					MaxSelect:     types.Pointer(1),
-					CollectionId:  "ae40239d2bc4477",
-					CascadeDelete: true,
-				},
+				Required: false,
 			},
 			&schema.SchemaField{
 				Name:     "youtube",
 				Type:     schema.FieldTypeText,
-				Required: true,
-				Options: &schema.RelationOptions{
-					MaxSelect:     types.Pointer(1),
-					CollectionId:  "ae40239d2bc4477",
-					CascadeDelete: true,
-				},
+				Required: false,
+			},
+			&schema.SchemaField{
+				Name:     "github",
+				Type:     schema.FieldTypeText,
+				Required: false,
 			},
 		),
 	}
@@ -122,18 +103,18 @@ func CreateCollections() []*models.Collection {
 
 		Name:       "blog",
 		Type:       models.CollectionTypeBase,
-		ListRule:   nil,
-		ViewRule:   types.Pointer("@request.auth.id != ''"),
-		CreateRule: types.Pointer(""),
+		ListRule:   types.Pointer(""),
+		ViewRule:   types.Pointer(""),
+		CreateRule: types.Pointer("@request.auth.id != ''"),
 		UpdateRule: types.Pointer("@request.auth.id != ''"),
-		DeleteRule: nil,
+		DeleteRule: types.Pointer(""),
 		Schema: schema.NewSchema(
 			&schema.SchemaField{
 				Name:     "title",
 				Type:     schema.FieldTypeText,
 				Required: true,
 				Options: &schema.TextOptions{
-					Max: types.Pointer(10),
+					Max: types.Pointer(50),
 				},
 			},
 			&schema.SchemaField{
@@ -169,7 +150,7 @@ func CreateCollections() []*models.Collection {
 
 			&schema.SchemaField{
 				Name:     "md",
-				Type:     schema.FieldTypeFile,
+				Type:     "json",
 				Required: true,
 				Options: &schema.RelationOptions{
 					MaxSelect:     types.Pointer(1),
@@ -177,12 +158,75 @@ func CreateCollections() []*models.Collection {
 					CascadeDelete: true,
 				},
 			},
+			&schema.SchemaField{
+				Name:     "titleImg",
+				Type:     schema.FieldTypeFile,
+				Required: true,
+				Options: &schema.FileOptions{
+					MaxSelect: 1,
+					MaxSize:   5242880,
+				},
+			},
 		),
+	}
+
+	metadata := &models.Collection{
+
+		Name:       "admin-controls",
+		Type:       models.CollectionTypeBase,
+		ListRule:   types.Pointer(""),
+		ViewRule:   types.Pointer(""),
+		CreateRule: types.Pointer("@request.auth.id != ''"),
+		UpdateRule: types.Pointer("@request.auth.id != ''"),
+		DeleteRule: types.Pointer(""),
+		Schema: schema.NewSchema(
+			&schema.SchemaField{
+				Name:     "accents",
+				Type:     schema.FieldTypeText,
+				Required: true,
+			},
+			&schema.SchemaField{
+				Name:     "design",
+				Type:     schema.FieldTypeText,
+				Required: true,
+			},
+		),
+	}
+
+	images := &models.Collection{
+
+		Name:       "images",
+		Type:       models.CollectionTypeBase,
+		ListRule:   types.Pointer(""),
+		ViewRule:   types.Pointer(""),
+		CreateRule: types.Pointer("@request.auth.id != ''"),
+		UpdateRule: types.Pointer("@request.auth.id != ''"),
+		DeleteRule: types.Pointer("@request.auth.id != ''"),
+		Schema: schema.NewSchema(
+			&schema.SchemaField{
+				Name:     "img",
+				Type:     schema.FieldTypeFile,
+				Required: true,
+				Options: &schema.FileOptions{
+					MaxSelect: 1,
+					MaxSize:   5242880,
+				},
+			},
+		),
+		// Schema: schema.NewSchema(
+		// 	&schema.SchemaField{
+		// 		Name:     "img",
+		// 		Type:     schema.FieldNameId,
+		// 		Required: true,
+		// 	},
+		// ),
 	}
 
 	collections = append(collections, hero)
 	collections = append(collections, contact)
 	collections = append(collections, blog)
+	collections = append(collections, metadata)
+	collections = append(collections, images)
 
 	return collections
 }

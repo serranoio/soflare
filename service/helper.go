@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-func sendPostRequest(url string, authorization string, payload []byte) io.ReadCloser {
+func sendPostRequest(url string, authorization string, payload []byte, requestType string) io.ReadCloser {
 
-	r, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	r, err := http.NewRequest(requestType, url, bytes.NewBuffer(payload))
 	if err != nil {
 		panic(err)
 	}

@@ -4,6 +4,18 @@
   --yellow: #FECEA8;
   --green: #99B898;
   --gray: #2a363B;
+  --white: #ffffff;
+  --gray98: #f7f8fa;
+  --gray96:#f2f4f5;
+  --gray92:#e1e6eb;
+  --gray80:#c3cbd4;
+  --gray60:#818d99;
+  --gray45:#5c6773;
+  --gray30:#3c444d;
+  --gray25:#31373e;
+  --gray22:#2b3033;
+  --gray20:#171d21;
+  --black:#000000;
 }
 
 * {
@@ -17,10 +29,16 @@ html {
 }
 
 
-h1,h2,h3 {
- color: var(--red);
+h1 {
+  color: var(--gray96);
 }
 
+h3 {
+ color: var(--gray80);
+}
+
+
+
 body {
-  background-color: var(--gray);
+  background-color: var(--gray30);
 }
