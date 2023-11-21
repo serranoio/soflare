@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 )
 
@@ -30,7 +29,7 @@ type DeployKeyPayload struct {
 }
 
 const netlifyToken = "nfp_LH1n3sxRV49m2y18URdzsiMUxnSUBE1N41da"
-const githubToken = "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"
+const githubToken = "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"
 
 func createDeployKey(themeName string) *DeployKeyPayload {
 	url := "https://api.netlify.com/api/v1/deploy_keys"
@@ -97,6 +96,7 @@ func createSitePayload(themeName string, siteName string) {
 
 	body := sendPostRequest(url, authorization, bytes, "POST")
 	defer body.Close()
+
 }
 
 func DeployToNetlify(themeName string, siteName string) error {
@@ -104,24 +104,4 @@ func DeployToNetlify(themeName string, siteName string) error {
 	createSitePayload(themeName, siteName)
 
 	return nil
-}
-
-func updateFrontend(siteName string, themeName string) {
-
-	url := fmt.Sprintf("https://api.netlify.com/api/v1/sites")
-	payload := []byte("")
-	authorization := netlifyToken
-
-	body := sendPostRequest(url, authorization, payload, "GET")
-	bytes, _ := io.ReadAll(body)
-	fmt.Println(bytes)
-	defer body.Close()
-
-	url = fmt.Sprintf("https://api.netlify.com/api/v1/sites/%s/deploys", siteName)
-	payload = []byte("")
-	authorization = netlifyToken
-
-	body = sendPostRequest(url, authorization, payload, "POST")
-	defer body.Close()
-
 }

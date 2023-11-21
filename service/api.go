@@ -29,7 +29,6 @@ func GoatDeploy(r *gin.Engine) {
 			})
 		}
 
-		insertDeploymentIntoDb(name)
 		err := goated(name)
 
 		if err != nil {
@@ -38,6 +37,8 @@ func GoatDeploy(r *gin.Engine) {
 				"message": "u done f'ed up",
 			})
 		}
+
+		insertDeploymentIntoDb(name)
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "success",
@@ -60,18 +61,18 @@ func FetchAllDeploys(r *gin.Engine) {
 
 }
 
-func GoatUpdate(r *gin.Engine) {
-	r.GET("/update/all", func(c *gin.Context) {
-		deployments := []Deployment{}
+// func GoatUpdate(r *gin.Engine) {
+// 	r.GET("/update/all", func(c *gin.Context) {
+// 		deployments := []Deployment{}
 
-		Db.Select("SiteName").Find(&deployments)
+// 		Db.Select("SiteName").Find(&deployments)
 
-		for _, deployment := range deployments {
-			updateFrontend(deployment.SiteName, "blog-1")
-		}
+// 		for _, deployment := range deployments {
+// 			updateFrontend(deployment.SiteName, "blog-1")
+// 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"deployments": deployments,
-		})
-	})
-}
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"deployments": deployments,
+// 		})
+// 	})
+// }

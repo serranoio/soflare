@@ -10,7 +10,7 @@
   
   const increment = 1000;
   const secondsInAMinute = 60;
-  const minutes = .1;
+  const minutes = 5.1;
   const beginningTime = minutes * secondsInAMinute * increment
   let time = beginningTime;  // 5 minutes
 
@@ -19,12 +19,14 @@
   
   let interval: any;
 
-  const countdown = () => {
-    time -= increment;
-    console.log(time)
-    localStorage.setItem("time", String(time));
+//   clearInterval(interval)
 
-    timerOn = true;
+  const countdown = () => {
+    if (!completed) {
+    time -= increment;
+      localStorage.setItem("time", String(time));
+      timerOn = true;
+    }
 
     if (time <= 0) {
         completed = true;
@@ -38,17 +40,19 @@
 
   const fetchAll = async () => {
       
+      
       const response = await fetch(url + "/fetch/all")
       
       const deploymentsObject = await response.json()
       
       deployments = deploymentsObject.deployments;
-    
-    
+      
+      
       const newTime = localStorage.getItem("time")
       const newTimeNumber = Number(newTime)
-    
+      
       if (newTime !== null && newTimeNumber !== beginningTime && Number(newTime) > 0) {
+          clearInterval(interval)
         time = Number(newTimeNumber)
         interval = setInterval(countdown, increment)
       }
@@ -63,22 +67,25 @@
         
         name = (document.querySelector("#website-name")! as HTMLInputElement).value 
         
-        
         try {
             interval = setInterval(countdown, increment);
-            website = await CreateWebsiteLol(name);     
+            website = await CreateWebsiteLol(name); 
+
+            fetchAll()
+            clearInterval(interval)
         } catch(e) {
             console.log(e)
         }
 
   }
 
+//   reverse
 
-//   const updateAll = async () => {
-//         const response = await fetch(url + "/update/all") 
+  if (localStorage.getItem("name")) {
+    website = localStorage.getItem("name")!; 
+  }
 
-//   }
-
+  $: disabled = timerOn ? "disabled" : "";
   </script>
 
 <nav class="nav">
@@ -100,23 +107,17 @@
             <input id="website-name" name="name" placeholder="website name"/>
         </div>
         {#if completed && time == beginningTime}
-        <p style="text-align: center; margin-bottom: 2.4rem;">COMPLETED! <a href={`https://${name}.netlify.app`}>Available here!</a></p>
+        <p style="text-align: center; margin-bottom: 2.4rem;">COMPLETED! It will appear as the first site in the deployed list.</p>
         {:else}
         {#if time != beginningTime}
         <p style="text-align: center; margin-bottom: 2.4rem;">{time / increment} seconds</p>
         {/if}
-            <!-- {@const secondsLeft = } -->
+        <!-- {@const secondsLeft = } -->
         {/if}
         <div>
-            <button on:click={submit} type="submit">LETS PARTY BEACH 🏖️</button>
+            <button on:click={submit} {disabled} type="submit">LETS PARTY BEACH 🏖️</button>
         </div>
         <div>
-            {#if website !== ""}
-            <p>Visit website at! <a href={website}>{website}</a></p>
-            {/if}
-            <!-- {website === "" ? 
-            nothing : -->
-        <!-- } -->
         </div>
     </form>
 
@@ -128,7 +129,7 @@
         {#if deployments}
         <div>
 
-            {#each deployments as deployment}
+            {#each deployments.reverse() as deployment}
             <ul><li><a target="_blank" href={`https://${deployment.sitename}.netlify.app`}>{deployment.sitename}</a></li></ul>
             {/each}   
         </div>
